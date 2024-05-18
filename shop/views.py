@@ -7,7 +7,7 @@ from .serializers import ProductSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
-
+from drf_yasg import openapi
 
 from .service import Cart
 
@@ -63,7 +63,32 @@ class CartAPI(APIView):
             "cart_total_price": cart.get_total_price()},
             status=status.HTTP_200_OK
             )
-    @swagger_auto_schema()
+    
+
+    @swagger_auto_schema(
+     request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+
+                'product': {"id":openapi.Schema(type=openapi.TYPE_INTEGER),
+                            "price":openapi.Schema(type=openapi.TYPE_INTEGER)},
+                "quantity":openapi.Schema(type=openapi.TYPE_INTEGER)
+
+               
+
+                
+            },
+            example={
+                    "product": {
+                            "id": 1,
+                           
+                            "price": "1800.00",
+                    
+                        },
+                "quantity": 5
+                }
+            
+        ),)
     def post(self, request, **kwargs):
         cart = Cart(request)
 
