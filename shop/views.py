@@ -16,7 +16,7 @@ from .service import Cart
 from rest_framework.permissions import IsAuthenticated
 
 class ProductListView(APIView):
-    permission_classes=(IsAuthenticated,)
+    
     @swagger_auto_schema()
     def get(self,request):
         products=Product.objects.all()
@@ -31,6 +31,8 @@ class ProductGetView(APIView):
         return Response(serializer.data,status=200)
 
 class OrderCreateView(APIView):
+    permission_classes=(IsAuthenticated,)
+
     @swagger_auto_schema(request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
@@ -49,21 +51,18 @@ class OrderCreateView(APIView):
                              "quantity": 5}
                              ]}))
     def post(self,request):
-        cart=request.session.get('cart',{})
+       
         order=Order.objects.create(user=request.user)
         serializer=OrderItemSerializer(request.data['products'],many=True)
         
         for product in serializer.data:
-            print((product['id']),'this is id')
             product_in_db=get_object_or_404(Product,id=product['id'])
-           
-            print(product,'this is id of product')
             order_product=OrderProduct.objects.create(order=order,
                                                       product=product_in_db,
                                                       quantity=int(product['quantity']),
                                                       price=product_in_db.price)
             
-            request.session['cart']={}
+         
             return Response({'message':'Order succusfully created'},status=200)
         
             

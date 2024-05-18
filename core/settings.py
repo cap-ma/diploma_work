@@ -145,5 +145,5 @@ CART_SESSION_ID = 'cart'
 CORS_ALLOW_ALL_ORIGINS = True # If this is used then `CORS_ALLOWED_ORIGINS` will not have any effect
 CORS_ALLOW_CREDENTIALS = True
 
-SESSION_COOKIE_AGE = 10000000  # Session expires after 1 hour (in seconds)
+SESSION_COOKIE_AGE = 10000  # Session expires after 1 hour (in seconds)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True 
