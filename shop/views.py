@@ -6,23 +6,28 @@ from .models import Product,Order,OrderProduct
 from .serializers import ProductSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from drf_yasg.utils import swagger_auto_schema
+
 
 from .service import Cart
 
 
 class ProductListView(APIView):
+    @swagger_auto_schema()
     def get(self,request):
         products=Product.objects.all()
         serializer=ProductSerializer(products,many=True)
         return Response(serializer.data,status=200)
     
 class ProductGetView(APIView):
+    @swagger_auto_schema()
     def get(self,request,id):
         product=get_object_or_404(Product,id=id)
         serializer=ProductSerializer(product)
         return Response(serializer.data,status=200)
 
 class OrderCreateView(APIView):
+    @swagger_auto_schema()
     def post(self,request):
         print(request.session.get('data'))
         cart=request.session.get('cart',{})
@@ -49,6 +54,7 @@ class CartAPI(APIView):
     """
     Single API to handle cart operations
     """
+    @swagger_auto_schema()
     def get(self, request, format=None):
         cart = Cart(request)
 
@@ -57,7 +63,7 @@ class CartAPI(APIView):
             "cart_total_price": cart.get_total_price()},
             status=status.HTTP_200_OK
             )
-
+    @swagger_auto_schema()
     def post(self, request, **kwargs):
         cart = Cart(request)
 
