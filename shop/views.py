@@ -8,11 +8,15 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.contrib.auth import authenticate,login
+from .serializers import UserRegisterSerializer,UserLoginSerializer,OrderItemSerializer
+from django.shortcuts import get_object_or_404
 
 from .service import Cart
-
+from rest_framework.permissions import IsAuthenticated
 
 class ProductListView(APIView):
+    permission_classes=(IsAuthenticated,)
     @swagger_auto_schema()
     def get(self,request):
         products=Product.objects.all()
@@ -27,22 +31,37 @@ class ProductGetView(APIView):
         return Response(serializer.data,status=200)
 
 class OrderCreateView(APIView):
-    @swagger_auto_schema()
+    @swagger_auto_schema(request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+
+                'products': [{"id":openapi.Schema(type=openapi.TYPE_INTEGER),
+                            "quantity":openapi.Schema(type=openapi.TYPE_INTEGER)},
+                            {"id":openapi.Schema(type=openapi.TYPE_INTEGER),
+                            "quantity":openapi.Schema(type=openapi.TYPE_INTEGER)}]
+            },
+            example={
+                    "products": [{
+                            "id": 1,
+                             "quantity": 5},
+                             {
+                            "id": 2,
+                             "quantity": 5}
+                             ]}))
     def post(self,request):
-        print(request.session.get('data'))
         cart=request.session.get('cart',{})
-        print(cart,'this is cart view--------')
-
         order=Order.objects.create(user=request.user)
-        print(cart.items(),'these items-----')
-
-        for product_id, quantity in cart.items():
-            product=Product.objects.get(id=product_id)
-            print(product_id,'this is id of product')
+        serializer=OrderItemSerializer(request.data['products'],many=True)
+        
+        for product in serializer.data:
+            print((product['id']),'this is id')
+            product_in_db=get_object_or_404(Product,id=product['id'])
+           
+            print(product,'this is id of product')
             order_product=OrderProduct.objects.create(order=order,
-                                                      product=product,
-                                                      quantity=quantity['quantity'],
-                                                      price=product.price)
+                                                      product=product_in_db,
+                                                      quantity=int(product['quantity']),
+                                                      price=product_in_db.price)
             
             request.session['cart']={}
             return Response({'message':'Order succusfully created'},status=200)
@@ -73,9 +92,6 @@ class CartAPI(APIView):
                 'product': {"id":openapi.Schema(type=openapi.TYPE_INTEGER),
                             "price":openapi.Schema(type=openapi.TYPE_INTEGER)},
                 "quantity":openapi.Schema(type=openapi.TYPE_INTEGER)
-
-               
-
                 
             },
             example={
@@ -83,7 +99,6 @@ class CartAPI(APIView):
                             "id": 1,
                            
                             "price": "1800.00",
-                    
                         },
                 "quantity": 5
                 }
@@ -110,4 +125,39 @@ class CartAPI(APIView):
         return Response(
             {"message": "cart updated"},)
 
+class LoginView(APIView):
 
+    @swagger_auto_schema(request_body=UserLoginSerializer)
+    def post(self,request):
+        if request.method == 'POST':
+            print(request.data,'this is post--')
+            print(request.data,'this is dataaa')
+
+            print(request.data.get('username'))
+            print(request.data.get('password'))
+            # Authenticate the user
+            user = authenticate(request, username=request.data.get('username'), password=request.data.get('password'))
+            print(user , 'this is user')
+            if user is not None:
+                login(request, user)
+                return Response({"message":"you have succesfully loged in"},status=200)
+        return Response({"message":'something went wrong , try again'},status=404)
+
+
+class UserRegistrationView(APIView):
+    @swagger_auto_schema(request_body=UserRegisterSerializer,   properties={
+
+                'username':openapi.Schema(type=openapi.TYPE_STRING),
+                          
+                "password":openapi.Schema(type=openapi.TYPE_STRING)
+                
+            },)
+    def post(self, request):
+        serializer = UserRegisterSerializer(data=request.data)
+        print()
+        if serializer.is_valid():
+          
+            user = serializer.save()
+            login(request, user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
