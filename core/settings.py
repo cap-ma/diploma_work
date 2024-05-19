@@ -89,6 +89,10 @@ STATICFILES_DIRS = [BASE_DIR / 'static',]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = ['*']
+CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
+
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
