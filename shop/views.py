@@ -31,7 +31,7 @@ class ProductGetView(APIView):
         return Response(serializer.data,status=200)
 
 class OrderCreateView(APIView):
-    permission_classes=(IsAuthenticated,)
+    # permission_classes=(IsAuthenticated,)
 
     @swagger_auto_schema(request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
