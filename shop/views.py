@@ -52,7 +52,7 @@ class OrderCreateView(APIView):
                              ]}))
     def post(self,request):
        
-        order=Order.objects.create(user=request.user)
+        order=Order.objects.create(user="")
         serializer=OrderItemSerializer(request.data['products'],many=True)
         
         for product in serializer.data:
