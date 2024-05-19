@@ -44,12 +44,13 @@ INSTALLED_APPS = [
     
     'shop',
 ]
-
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-    ],
+    ]
 }
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -90,7 +91,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 CSRF_COOKIE_SECURE = True
-CSRF_TRUSTED_ORIGINS = ['*']
+# CSRF_TRUSTED_ORIGINS = ['*']
 CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
 
 # Database
@@ -149,5 +150,12 @@ CART_SESSION_ID = 'cart'
 CORS_ALLOW_ALL_ORIGINS = True # If this is used then `CORS_ALLOWED_ORIGINS` will not have any effect
 CORS_ALLOW_CREDENTIALS = True
 
-SESSION_COOKIE_AGE = 10000  # Session expires after 1 hour (in seconds)
-SESSION_EXPIRE_AT_BROWSER_CLOSE = True 
+SESSION_COOKIE_AGE = 100000  # Session expires after 1 hour (in seconds)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
+
+CSRF_TRUSTED_ORIGINS = [
+    
+    "http://127.0.0.1:8000",
+    "http://locahost://3000",
+]

@@ -50,13 +50,20 @@ class OrderCreateView(APIView):
                             "id": 2,
                              "quantity": 5}
                              ]}))
+    
     def post(self,request):
        
         order=Order.objects.create(user=request.user)
+        request.data['products']=[{"id":data['id'],"quantity":data['quantity']} for data in request.data['products']]
+        print(request.data['products'],'this is products')
+
         serializer=OrderItemSerializer(request.data['products'],many=True)
         
         for product in serializer.data:
-            product_in_db=get_object_or_404(Product,id=product['id'])
+            print(serializer.data,'this is data serialized')
+            print(product['id'])
+            product_in_db=get_object_or_404(Product,id=int(product['id']))
+            print(product_in_db,'db product')
             order_product=OrderProduct.objects.create(order=order,
                                                       product=product_in_db,
                                                       quantity=int(product['quantity']),
