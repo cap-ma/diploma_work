@@ -31,7 +31,7 @@ class ProductGetView(APIView):
         return Response(serializer.data,status=200)
 
 class OrderCreateView(APIView):
-    # permission_classes=(IsAuthenticated,)
+    permission_classes=(IsAuthenticated,)
 
     @swagger_auto_schema(request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
@@ -52,7 +52,7 @@ class OrderCreateView(APIView):
                              ]}))
     def post(self,request):
        
-        order=Order.objects.create(user=None)
+        order=Order.objects.create(user=request.user)
         serializer=OrderItemSerializer(request.data['products'],many=True)
         
         for product in serializer.data:
