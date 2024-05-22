@@ -9,11 +9,40 @@ from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.contrib.auth import authenticate,login
-from .serializers import UserRegisterSerializer,UserLoginSerializer,OrderItemSerializer
+from .serializers import UserRegisterSerializer,UserLoginSerializer,OrderItemSerializer,CategoryListSerializer
 from django.shortcuts import get_object_or_404
 
 from .service import Cart
 from rest_framework.permissions import IsAuthenticated
+from .models import Category
+
+
+class CategoryListView(APIView):
+    @swagger_auto_schema()
+    def get(self,request):
+        try:
+            categories=Category.objects.all()
+            print(categories,'this is cat')
+            serializer=CategoryListSerializer(categories,many=True)
+            print(serializer.data)
+            return Response(serializer.data,status=200)
+        except Exception as e:
+            print(e)
+            return Response({"message":"something bad happened"},status=400)
+    
+class ProductListByCategoryView(APIView):
+    @swagger_auto_schema()
+    def get(self,request,id):
+ 
+        products=Product.objects.filter(category=id)
+        
+        if products.exists():
+            serializer=ProductSerializer(products,many=True)
+            return Response(serializer.data,status=200)
+        
+        return Response({"message":"there is not products based on this category"},status=400)
+    
+
 
 class ProductListView(APIView):
     
@@ -31,12 +60,9 @@ class ProductGetView(APIView):
         return Response(serializer.data,status=200)
 
 class OrderCreateView(APIView):
-   
-
     @swagger_auto_schema(request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-
                 'products': [{"id":openapi.Schema(type=openapi.TYPE_INTEGER),
                             "quantity":openapi.Schema(type=openapi.TYPE_INTEGER)},
                             {"id":openapi.Schema(type=openapi.TYPE_INTEGER),
@@ -50,13 +76,11 @@ class OrderCreateView(APIView):
                             "id": 2,
                              "quantity": 5}
                              ]}))
-    
     def post(self,request):
-       
         order=Order.objects.create(user=None)
         request.data['products']=[{"id":data['id'],"quantity":data['quantity']} for data in request.data['products']]
         print(request.data['products'],'this is products')
-
+        
         serializer=OrderItemSerializer(request.data['products'],many=True)
         
         for product in serializer.data:

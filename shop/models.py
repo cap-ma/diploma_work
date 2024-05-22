@@ -1,6 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
+class Category(models.Model):
+    name=models.CharField(max_length=128)
+
+    def __str__(self) -> str:
+        return self.name
+    
+
 class Product(models.Model):
     name=models.CharField(max_length=250,verbose_name='nomi')
     image=models.ImageField(upload_to='media/')
@@ -8,6 +16,8 @@ class Product(models.Model):
     description=models.TextField(verbose_name='mahsulot haqida')
     in_stock=models.BooleanField(default=True)
     user=models.ForeignKey(User,on_delete=models.DO_NOTHING,blank=True,null=True)
+    category=models.ForeignKey(Category,on_delete=models.SET_NULL,null=True,blank=True)
+
 
     def __str__(self) -> str:
         return self.name
