@@ -29,7 +29,7 @@ class Order(models.Model):
     is_paid = models.BooleanField(default=False)
 
     def __str__(self) -> str:
-        return str(self.user.username)
+        return str(self.created_at)
 
 class OrderProduct(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='order_products',null=True,blank=True)
