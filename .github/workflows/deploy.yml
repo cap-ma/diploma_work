@@ -16,7 +16,7 @@ jobs:
         run: |
           echo "Deploying to host: ${{ secrets.VPS_IP }}"
           echo "Username: ${{ secrets.VPS_USERNAME }}"
-          echo "SSH Key is set: ${{ secrets.SSH_PRIVATE_KEY }}"
+          echo "SSH Key is set: ${{ secrets.SSH_PRIVATE_KEY != '' }}"
           
       - name: Deploy to VPS
         uses: appleboy/ssh-action@master
